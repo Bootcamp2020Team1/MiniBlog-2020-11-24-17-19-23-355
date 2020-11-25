@@ -46,7 +46,7 @@ namespace MiniBlogTest.ControllerTest
             {
                 builder.ConfigureServices(services =>
                 {
-                    services.AddScoped<IArticleStore>((serviceProvider) => { return mockArticleStore.Object; });
+                    services.AddScoped((serviceProvider) => mockArticleStore.Object);
                 });
             }).CreateClient();
             string userNameWhoWillAdd = "Tom";

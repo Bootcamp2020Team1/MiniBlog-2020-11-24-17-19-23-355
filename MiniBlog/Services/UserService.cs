@@ -9,6 +9,13 @@ namespace MiniBlog.Services
 {
     public class UserService
     {
+        private readonly IUserStore userStore;
+
+        public UserService(IUserStore userStore)
+        {
+            this.userStore = userStore;
+        }
+
         public void RegisterUserByName(string userName, string email = "anonymous@unknow.com")
         {
             if (!UserStoreWillReplaceInFuture.Users.Exists(_ => userName.ToLower() == _.Name.ToLower()))

@@ -12,13 +12,7 @@ namespace MiniBlog.Stores
 
     public class ArticleStore : IArticleStore
     {
-        public List<Article> Articles
-        {
-            get
-            {
-                return ArticleStoreWillReplaceInFuture.Articles;
-            }
-        }
+        public List<Article> Articles => ArticleStoreWillReplaceInFuture.Articles;
     }
 
     public class ArticleStoreWillReplaceInFuture

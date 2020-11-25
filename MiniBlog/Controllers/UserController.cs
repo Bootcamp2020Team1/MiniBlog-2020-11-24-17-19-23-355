@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Internal;
 using MiniBlog.Model;
+using MiniBlog.Services;
 using MiniBlog.Stores;
 
 namespace MiniBlog.Controllers
@@ -14,22 +16,21 @@ namespace MiniBlog.Controllers
     {
         private readonly IUserStore userStore;
         private readonly List<User> users;
+        private readonly UserService userService;
 
-        public UserController(IUserStore userStore)
+        public UserController(IUserStore userStore, UserService userService)
         {
             this.userStore = userStore;
             users = userStore.Users;
+            this.userService = userService;
         }
 
         [HttpPost]
         public async Task<ActionResult<User>> Register(User user)
         {
-            if (!users.Exists(_ => user.Name.ToLower() == _.Name.ToLower()))
-            {
-                userStore.Users.Add(user);
-            }
+            this.userService.RegisterUserByName(user.Name, user.Email);
 
-            return CreatedAtAction(nameof(GetByName), new { abc = user.Name }, user);
+            return CreatedAtAction(nameof(GetByName), new { name = user.Name }, user);
         }
 
         [HttpGet]
@@ -63,7 +64,7 @@ namespace MiniBlog.Controllers
             return foundUser;
         }
 
-        [HttpGet("{abc}")]
+        [HttpGet("{name}")]
         public User GetByName(string name)
         {
             return UserStoreWillReplaceInFuture.Users.FirstOrDefault(_ => _.Name.ToLower() == name.ToLower());

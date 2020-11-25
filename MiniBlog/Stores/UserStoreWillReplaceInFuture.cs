@@ -12,13 +12,7 @@ namespace MiniBlog.Stores
 
     public class UserStore : IUserStore
     {
-        public List<User> Users
-        {
-            get
-            {
-                return UserStoreWillReplaceInFuture.Users;
-            }
-        }
+        public List<User> Users => UserStoreWillReplaceInFuture.Users;
     }
 
     public class UserStoreWillReplaceInFuture

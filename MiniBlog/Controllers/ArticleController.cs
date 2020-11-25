@@ -23,7 +23,7 @@ namespace MiniBlog.Controllers
         [HttpGet]
         public List<Article> List()
         {
-            return ArticleStoreWillReplaceInFuture.Articles.ToList();
+            return articleStore.Articles.ToList();
         }
 
         [HttpPost]
@@ -45,7 +45,7 @@ namespace MiniBlog.Controllers
         [HttpGet("{id}")]
         public Article GetById(Guid id)
         {
-            var foundArticle = ArticleStoreWillReplaceInFuture.Articles.FirstOrDefault(article => article.Id == id);
+            var foundArticle = articleStore.Articles.FirstOrDefault(article => article.Id == id);
             return foundArticle;
         }
     }

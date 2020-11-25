@@ -24,7 +24,7 @@ namespace MiniBlog.Controllers
             return this.articleService.GetAllArticles();
         }
 
-        [HttpPost(Name = "Create")]
+        [HttpPost]
         public ActionResult<Article> Create(Article newArticle)
         {
             if (newArticle.UserName != null)
@@ -34,7 +34,7 @@ namespace MiniBlog.Controllers
                 articleService.AddArticle(newArticle);
             }
 
-            return CreatedAtAction(nameof(Create), new { id = newArticle.Id.ToString() });
+            return CreatedAtAction(nameof(GetById), new { id = newArticle.Id }, newArticle);
         }
 
         [HttpGet("{id}")]

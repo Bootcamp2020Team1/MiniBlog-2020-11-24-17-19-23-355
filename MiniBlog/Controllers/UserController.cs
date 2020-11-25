@@ -24,7 +24,7 @@ namespace MiniBlog.Controllers
         {
             var user = userService.AddUserByName(newUser.Name, newUser.Email);
 
-            return CreatedAtAction(nameof(Register), new { id = user.Name }, user);
+            return CreatedAtAction(nameof(GetByName), new { name = newUser.Name }, newUser);
         }
 
         [HttpGet]

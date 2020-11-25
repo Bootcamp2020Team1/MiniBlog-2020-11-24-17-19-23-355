@@ -8,13 +8,7 @@ using MiniBlog.Model;
 using MiniBlog.Stores;
 using Newtonsoft.Json;
 using Xunit;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using MiniBlog.Model;
-using MiniBlog.Stores;
 using System.Threading.Tasks;
 
 namespace MiniBlogTest.ControllerTest
@@ -70,7 +64,7 @@ namespace MiniBlogTest.ControllerTest
             {
                 builder.ConfigureServices(services =>
                 {
-                    services.AddSingleton<IUserStore, UnavaliableUserStore>((service) => { return new UnavaliableUserStore(); });
+                    services.AddScoped<IUserStore, UnavaliableUserStore>((service) => { return new UnavaliableUserStore(); });
                 });
             }).CreateClient();
 

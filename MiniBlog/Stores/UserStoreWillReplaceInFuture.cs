@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Components.Server;
 using MiniBlog.Model;
 
 namespace MiniBlog.Stores
@@ -21,7 +20,7 @@ namespace MiniBlog.Stores
 
     public class UserStoreWillReplaceInFuture
     {
-        public UserStoreWillReplaceInFuture()
+        static UserStoreWillReplaceInFuture()
         {
             Users = new List<User>();
         }

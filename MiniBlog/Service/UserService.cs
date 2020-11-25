@@ -4,23 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 namespace MiniBlog.Service
 {
-    public interface IUserService
-    {
-        User AddUserByName(string name, string email);
-        bool ContainsUser(string name);
-        List<User> GetAllUsers();
-        User GetUserByName(string name);
-        User DeleteUserByName(string name);
-    }
-
     public class UserService : IUserService
     {
         private readonly IUserStore userStore;
-        private readonly IArticleStore articleStore;
-        public UserService(IUserStore userStore, IArticleStore articleStore)
+        public UserService(IUserStore userStore)
         {
             this.userStore = userStore;
-            this.articleStore = articleStore;
         }
 
         public User AddUserByName(string name, string email = "anonymous@unknow.com")
@@ -56,7 +45,17 @@ namespace MiniBlog.Service
             if (foundUser != null)
             {
                 userStore.Users.Remove(foundUser);
-                articleStore.Articles.RemoveAll(a => a.UserName == foundUser.Name);
+            }
+
+            return foundUser;
+        }
+
+        public User UpdateUser(User user)
+        {
+            var foundUser = GetUserByName(user.Name);
+            if (foundUser != null)
+            {
+                foundUser.Email = user.Email;
             }
 
             return foundUser;

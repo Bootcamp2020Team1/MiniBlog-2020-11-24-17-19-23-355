@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MiniBlog.Model;
 using MiniBlog.Service;
-using MiniBlog.Stores;
 
 namespace MiniBlog.Controllers
 {
@@ -12,10 +11,12 @@ namespace MiniBlog.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService userService;
+        private readonly IArticleService articleService;
 
-        public UserController(IUserService userService, IArticleStore articleStore)
+        public UserController(IUserService userService, IArticleService articleService)
         {
             this.userService = userService;
+            this.articleService = articleService;
         }
 
         [HttpPost]
@@ -35,19 +36,19 @@ namespace MiniBlog.Controllers
         [HttpPut]
         public User Update(User user)
         {
-            var foundUser = GetByName(user.Name);
-            if (foundUser != null)
-            {
-                foundUser.Email = user.Email;
-            }
-
-            return foundUser;
+            return userService.UpdateUser(user);
         }
 
         [HttpDelete]
         public async Task<ActionResult<User>> Delete(string name)
         {
-            var foundUser = userService.DeleteUserByName(name);
+            var foundUser = userService.GetUserByName(name);
+            if (foundUser != null)
+            {
+                userService.DeleteUserByName(name);
+                articleService.DeleteArticleByName(name);
+            }
+
             return Ok(foundUser);
         }
 

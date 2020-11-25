@@ -13,16 +13,18 @@ namespace MiniBlog.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserStore userStore;
+        private readonly List<User> users;
 
         public UserController(IUserStore userStore)
         {
             this.userStore = userStore;
+            users = userStore.Users;
         }
 
         [HttpPost]
         public async Task<ActionResult<User>> Register(User user)
         {
-            if (!UserStoreWillReplaceInFuture.Users.Exists(_ => user.Name.ToLower() == _.Name.ToLower()))
+            if (!users.Exists(_ => user.Name.ToLower() == _.Name.ToLower()))
             {
                 userStore.Users.Add(user);
             }
@@ -33,13 +35,13 @@ namespace MiniBlog.Controllers
         [HttpGet]
         public List<User> GetAll()
         {
-            return UserStoreWillReplaceInFuture.Users;
+            return users;
         }
 
         [HttpPut]
         public User Update(User user)
         {
-            var foundUser = UserStoreWillReplaceInFuture.Users.FirstOrDefault(_ => _.Name == user.Name);
+            var foundUser = users.FirstOrDefault(_ => _.Name == user.Name);
             if (foundUser != null)
             {
                 foundUser.Email = user.Email;

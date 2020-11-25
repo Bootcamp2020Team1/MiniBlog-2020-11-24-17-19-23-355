@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MiniBlog.Interfaces;
 using MiniBlog.Model;
+using MiniBlog.Services;
 using MiniBlog.Stores;
 
 namespace MiniBlog.Controllers
@@ -14,18 +15,18 @@ namespace MiniBlog.Controllers
     [Route("[controller]")]
     public class ArticleController : ControllerBase
     {
-        private readonly IUserStore userStore;
-        private readonly IArticleStore articleStore;
-        public ArticleController(IUserStore userStore, IArticleStore articleStore)
+        private readonly UserService userService;
+        private readonly ArticleService articleService;
+        public ArticleController(UserService userService, ArticleService articleService)
         {
-            this.userStore = userStore;
-            this.articleStore = articleStore;
+            this.userService = userService;
+            this.articleService = articleService;
         }
 
         [HttpGet]
         public List<Article> List()
         {
-            return ArticleStoreWillReplaceInFuture.Articles.ToList();
+            return articleService.GetAllArticles();
         }
 
         [HttpPost]
@@ -33,12 +34,9 @@ namespace MiniBlog.Controllers
         {
             if (article.UserName != null)
             {
-                if (!userStore.Users.Exists(_ => article.UserName == _.Name))
-                {
-                    userStore.Users.Add(new User(article.UserName));
-                }
+                userService.AddNewUser(article.UserName);
 
-                articleStore.Articles.Add(article);
+                articleService.AddNewArticle(article);
             }
 
             return CreatedAtAction(nameof(GetById), new { id = article.Id }, article);
@@ -47,7 +45,7 @@ namespace MiniBlog.Controllers
         [HttpGet("{id}")]
         public Article GetById(Guid id)
         {
-            var foundArticle = ArticleStoreWillReplaceInFuture.Articles.FirstOrDefault(article => article.Id == id);
+            Article foundArticle = articleService.FindArticleById(id);
             return foundArticle;
         }
     }

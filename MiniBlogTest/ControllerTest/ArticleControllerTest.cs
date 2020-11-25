@@ -9,7 +9,11 @@ using MiniBlog;
 using MiniBlog.Model;
 using MiniBlog.Stores;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Xunit;
+using MiniBlog.Interfaces;
 
 namespace MiniBlogTest.ControllerTest
 {
@@ -37,7 +41,15 @@ namespace MiniBlogTest.ControllerTest
         [Fact]
         public async void Should_create_article_fail_when_ArticleStore_unavailable()
         {
-            var client = GetClient();
+            var client = Factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureServices(services =>
+                {
+                    services.AddScoped<IArticleStore, TestArticleStore>((serviceProvider) => { return new TestArticleStore(); });
+                });
+            }).CreateClient();
+
+            //var client = GetClient();
             string userNameWhoWillAdd = "Tom";
             string articleContent = "What a good day today!";
             string articleTitle = "Good day";

@@ -14,11 +14,6 @@ namespace MiniBlog.Stores
         public List<Article> Articles => ArticleStoreWillReplaceInFuture.Articles;
     }
 
-    public class UnAvaliableArticleStore : IArticleStore
-    {
-        public List<Article> Articles => throw new Exception();
-    }
-
     public class ArticleStoreWillReplaceInFuture 
     {
         public ArticleStoreWillReplaceInFuture()

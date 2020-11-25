@@ -13,15 +13,17 @@ namespace MiniBlog.Controllers
     public class ArticleController : ControllerBase
     {
         private readonly IArticleStore articleStore;
-        public ArticleController(IArticleStore articleStore)
+        private readonly IUserStore userStore;
+        public ArticleController(IArticleStore articleStore, IUserStore userStore)
         {
             this.articleStore = articleStore;
+            this.userStore = userStore;
         }
 
         [HttpGet]
         public List<Article> List()
         {
-            return ArticleStoreWillReplaceInFuture.Articles.ToList();
+            return articleStore.Articles.ToList();
         }
 
         [HttpPost(Name = "Create")]
@@ -29,21 +31,22 @@ namespace MiniBlog.Controllers
         {
             if (article.UserName != null)
             {
-                if (!UserStoreWillReplaceInFuture.Users.Exists(_ => article.UserName == _.Name))
+                if (!userStore.Users.Exists(_ => article.UserName == _.Name))
                 {
-                    UserStoreWillReplaceInFuture.Users.Add(new User(article.UserName));
+                    userStore.Users.Add(new User(article.UserName));
                 }
 
                 articleStore.Articles.Add(article);
             }
 
+            var name = nameof(GetById);
             return CreatedAtAction("Create", new { id = article.Id.ToString() });
         }
 
         [HttpGet("{id}")]
         public Article GetById(Guid id)
         {
-            var foundArticle = ArticleStoreWillReplaceInFuture.Articles.FirstOrDefault(article => article.Id == id);
+            var foundArticle = articleStore.Articles.FirstOrDefault(article => article.Id == id);
             return foundArticle;
         }
     }

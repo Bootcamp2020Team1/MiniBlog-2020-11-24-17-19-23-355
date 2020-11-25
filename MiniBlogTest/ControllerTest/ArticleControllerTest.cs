@@ -9,6 +9,8 @@ using MiniBlog.Stores;
 using Newtonsoft.Json;
 using Xunit;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
+using System;
 
 namespace MiniBlogTest.ControllerTest
 {
@@ -36,11 +38,14 @@ namespace MiniBlogTest.ControllerTest
         [Fact]
         public async void Should_create_article_fail_when_ArticleStore_unavailable()
         {
+            var mockArticleStore = new Mock<IArticleStore>();
+            mockArticleStore.Setup(moq => moq.Articles).Throws(new Exception());
+
             var client = Factory.WithWebHostBuilder(builder =>
             {
                 builder.ConfigureServices(services =>
                 {
-                    services.AddScoped<IArticleStore, UnAvaliableArticleStore>((service) => { return new UnAvaliableArticleStore(); });
+                    services.AddScoped<IArticleStore>(service => { return mockArticleStore.Object; });
                 });
             }).CreateClient();
 

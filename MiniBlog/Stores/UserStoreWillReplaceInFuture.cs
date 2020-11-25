@@ -8,11 +8,6 @@ namespace MiniBlog.Stores
         public List<User> Users { get; }
     }
 
-    public class UnavaliableUserStore : IUserStore
-    {
-        public List<User> Users => throw new System.NotImplementedException();
-    }
-
     public class UserStore : IUserStore
     {
         public List<User> Users => UserStoreWillReplaceInFuture.Users;

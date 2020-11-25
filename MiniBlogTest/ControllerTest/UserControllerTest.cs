@@ -10,6 +10,8 @@ using Newtonsoft.Json;
 using Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
+using Moq;
+using System;
 
 namespace MiniBlogTest.ControllerTest
 {
@@ -60,11 +62,13 @@ namespace MiniBlogTest.ControllerTest
         [Fact]
         public async Task Should_register_user_fail_when_UserStore_unavailable()
         {
+            var mockUserStore = new Mock<IUserStore>();
+            mockUserStore.Setup(store => store.Users).Throws(new Exception());
             var client = Factory.WithWebHostBuilder(builder =>
             {
                 builder.ConfigureServices(services =>
                 {
-                    services.AddScoped<IUserStore, UnavaliableUserStore>((service) => { return new UnavaliableUserStore(); });
+                    services.AddScoped<IUserStore>((service) => { return mockUserStore.Object; });
                 });
             }).CreateClient();
 

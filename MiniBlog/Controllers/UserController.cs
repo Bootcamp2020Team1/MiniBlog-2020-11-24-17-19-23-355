@@ -15,9 +15,11 @@ namespace MiniBlog.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserStore userStore;
-        public UserController(IUserStore userStore)
+        private readonly IArticleStore articleStore;
+        public UserController(IUserStore userStore, IArticleStore articleStore)
         {
             this.userStore = userStore;
+            this.articleStore = articleStore;
         }
 
         [HttpPost]
@@ -56,7 +58,7 @@ namespace MiniBlog.Controllers
             if (foundUser != null)
             {
                 userStore.Users.Remove(foundUser);
-                ArticleStoreWillReplaceInFuture.Articles.RemoveAll(a => a.UserName == foundUser.Name);
+                articleStore.Articles.RemoveAll(a => a.UserName == foundUser.Name);
             }
 
             return foundUser;

@@ -21,7 +21,6 @@ namespace MiniBlog.Services
         {
             if (!userStore.Users.Exists(_ => userName.ToLower() == _.Name.ToLower()))
             {
-                //UserStoreWillReplaceInFuture.Users.Add(user);
                 userStore.Users.Add(new User(userName, email));
             }
         }

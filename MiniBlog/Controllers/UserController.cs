@@ -30,8 +30,6 @@ namespace MiniBlog.Controllers
         public async Task<ActionResult<User>> Register(User user)
         {
             this.userService.RegisterUserByName(user.Name, user.Email);
-
-            //throw new Exception();
             return CreatedAtAction(nameof(GetByName), new { name = user.Name }, user);
         }
 

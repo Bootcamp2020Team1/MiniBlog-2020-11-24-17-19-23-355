@@ -1,5 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Internal;
 using MiniBlog.Model;
@@ -11,27 +14,37 @@ namespace MiniBlog.Controllers
     [Route("[controller]")]
     public class UserController : ControllerBase
     {
-        [HttpPost]
-        public User Register(User user)
+        private readonly IUserStore userStore;
+        private readonly IArticleStore articleStore;
+        public UserController(IUserStore userStore, IArticleStore articleStore)
         {
-            if (!UserStoreWillReplaceInFuture.Users.Exists(_ => user.Name.ToLower() == _.Name.ToLower()))
+            this.userStore = userStore;
+            this.articleStore = articleStore;
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<User>> Register(User user)
+        {
+            if (!userStore.Users.Exists(_ => user.Name.ToLower() == _.Name.ToLower()))
             {
-                UserStoreWillReplaceInFuture.Users.Add(user);
+                //UserStoreWillReplaceInFuture.Users.Add(user);
+                userStore.Users.Add(user);     
             }
 
-            return user;
+            //throw new Exception();
+            return CreatedAtAction(nameof(GetByName), new { name = user.Name }, user);
         }
 
         [HttpGet]
         public List<User> GetAll()
         {
-            return UserStoreWillReplaceInFuture.Users;
+            return userStore.Users;
         }
 
         [HttpPut]
         public User Update(User user)
         {
-            var foundUser = UserStoreWillReplaceInFuture.Users.FirstOrDefault(_ => _.Name == user.Name);
+            var foundUser = userStore.Users.FirstOrDefault(_ => _.Name == user.Name);
             if (foundUser != null)
             {
                 foundUser.Email = user.Email;
@@ -43,11 +56,11 @@ namespace MiniBlog.Controllers
         [HttpDelete]
         public User Delete(string name)
         {
-            var foundUser = UserStoreWillReplaceInFuture.Users.FirstOrDefault(_ => _.Name == name);
+            var foundUser = userStore.Users.FirstOrDefault(_ => _.Name == name);
             if (foundUser != null)
             {
-                UserStoreWillReplaceInFuture.Users.Remove(foundUser);
-                ArticleStoreWillReplaceInFuture.Articles.RemoveAll(a => a.UserName == foundUser.Name);
+                userStore.Users.Remove(foundUser);
+                articleStore.Articles.RemoveAll(a => a.UserName == foundUser.Name);
             }
 
             return foundUser;
@@ -56,7 +69,7 @@ namespace MiniBlog.Controllers
         [HttpGet("{name}")]
         public User GetByName(string name)
         {
-            return UserStoreWillReplaceInFuture.Users.FirstOrDefault(_ => _.Name.ToLower() == name.ToLower());
+            return userStore.Users.FirstOrDefault(_ => _.Name.ToLower() == name.ToLower());
         }
     }
 }

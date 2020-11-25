@@ -8,9 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
 using MiniBlog;
 using MiniBlog.Model;
 using MiniBlog.Stores;
+using Moq;
 using Newtonsoft.Json;
 using Xunit;
 
@@ -63,7 +65,19 @@ namespace MiniBlogTest.ControllerTest
         [Fact]
         public async Task Should_register_user_fail_when_UserStore_unavailable()
         {
-            var client = GetClient();
+            Mock<IUserStore> mockArticleStore = new Mock<IUserStore>();
+            mockArticleStore.Setup(mock => mock.Users).Throws<Exception>();
+            var client = Factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureServices(services =>
+                {
+                    services.AddSingleton<IUserStore>((serviceProvider) =>
+                    {
+                        return mockArticleStore.Object;
+                    });
+                });
+            }).CreateClient();
+            //var client = GetClient();
 
             var userName = "Tom";
             var email = "a@b.com";

@@ -1,18 +1,21 @@
-using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Mime;
-using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.TestHost;
 using MiniBlog;
 using MiniBlog.Model;
 using MiniBlog.Stores;
 using Newtonsoft.Json;
 using Xunit;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using MiniBlog.Model;
+using MiniBlog.Stores;
+using System.Threading.Tasks;
 
 namespace MiniBlogTest.ControllerTest
 {
@@ -63,7 +66,13 @@ namespace MiniBlogTest.ControllerTest
         [Fact]
         public async Task Should_register_user_fail_when_UserStore_unavailable()
         {
-            var client = GetClient();
+            var client = Factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureServices(services =>
+                {
+                    services.AddSingleton<IUserStore, UnavaliableUserStore>((service) => { return new UnavaliableUserStore(); });
+                });
+            }).CreateClient();
 
             var userName = "Tom";
             var email = "a@b.com";

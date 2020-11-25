@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Internal;
 using MiniBlog.Model;
@@ -11,15 +12,21 @@ namespace MiniBlog.Controllers
     [Route("[controller]")]
     public class UserController : ControllerBase
     {
-        [HttpPost]
-        public User Register(User user)
+        private readonly IUserStore userStore;
+        public UserController(IUserStore userStore)
         {
-            if (!UserStoreWillReplaceInFuture.Users.Exists(_ => user.Name.ToLower() == _.Name.ToLower()))
+            this.userStore = userStore;
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<User>> Register(User user)
+        {
+            if (!userStore.Users.Exists(_ => user.Name.ToLower() == _.Name.ToLower()))
             {
-                UserStoreWillReplaceInFuture.Users.Add(user);
+                userStore.Users.Add(user);
             }
 
-            return user;
+            return CreatedAtAction("Register", new { id = user.Name });
         }
 
         [HttpGet]
@@ -31,7 +38,7 @@ namespace MiniBlog.Controllers
         [HttpPut]
         public User Update(User user)
         {
-            var foundUser = UserStoreWillReplaceInFuture.Users.FirstOrDefault(_ => _.Name == user.Name);
+            var foundUser = userStore.Users.FirstOrDefault(_ => _.Name == user.Name);
             if (foundUser != null)
             {
                 foundUser.Email = user.Email;
@@ -41,7 +48,7 @@ namespace MiniBlog.Controllers
         }
 
         [HttpDelete]
-        public User Delete(string name)
+        public async Task<ActionResult<User>> Delete(string name)
         {
             var foundUser = UserStoreWillReplaceInFuture.Users.FirstOrDefault(_ => _.Name == name);
             if (foundUser != null)
@@ -50,7 +57,7 @@ namespace MiniBlog.Controllers
                 ArticleStoreWillReplaceInFuture.Articles.RemoveAll(a => a.UserName == foundUser.Name);
             }
 
-            return foundUser;
+            return Ok(foundUser);
         }
 
         [HttpGet("{name}")]

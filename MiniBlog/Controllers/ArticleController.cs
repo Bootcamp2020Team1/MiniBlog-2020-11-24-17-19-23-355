@@ -13,14 +13,20 @@ namespace MiniBlog.Controllers
     [Route("[controller]")]
     public class ArticleController : ControllerBase
     {
+        private readonly IArticleStore articleStore;
+        public ArticleController(IArticleStore articleStore)
+        {
+            this.articleStore = articleStore;
+        }
+
         [HttpGet]
         public List<Article> List()
         {
             return ArticleStoreWillReplaceInFuture.Articles.ToList();
         }
 
-        [HttpPost]
-        public Article Create(Article article)
+        [HttpPost(Name = "Create")]
+        public async Task<ActionResult<Article>> Create(Article article)
         {
             if (article.UserName != null)
             {
@@ -29,10 +35,10 @@ namespace MiniBlog.Controllers
                     UserStoreWillReplaceInFuture.Users.Add(new User(article.UserName));
                 }
 
-                ArticleStoreWillReplaceInFuture.Articles.Add(article);
+                articleStore.Articles.Add(article);
             }
 
-            return article;
+            return CreatedAtAction("Create", new { id = article.Id.ToString() });
         }
 
         [HttpGet("{id}")]

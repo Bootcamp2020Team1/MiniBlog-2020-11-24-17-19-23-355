@@ -4,7 +4,22 @@ using MiniBlog.Model;
 
 namespace MiniBlog.Stores
 {
-    public class ArticleStoreWillReplaceInFuture
+    public interface IArticleStore
+    {
+        List<Article> Articles { get; }
+    }
+
+    public class ArticleStore : IArticleStore
+    {
+        public List<Article> Articles => ArticleStoreWillReplaceInFuture.Articles;
+    }
+
+    public class UnAvaliableArticleStore : IArticleStore
+    {
+        public List<Article> Articles => throw new Exception();
+    }
+
+    public class ArticleStoreWillReplaceInFuture 
     {
         public ArticleStoreWillReplaceInFuture()
         {

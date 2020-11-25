@@ -69,7 +69,7 @@ namespace MiniBlogTest.ControllerTest
             {
                 builder.ConfigureServices(services =>
                 {
-                    services.AddSingleton<IUserStore, TestUserStore>((serviceProvider) => { return new TestUserStore(); });
+                    services.AddScoped<IUserStore, TestUserStore>((serviceProvider) => { return new TestUserStore(); });
                 });
             }).CreateClient();
 

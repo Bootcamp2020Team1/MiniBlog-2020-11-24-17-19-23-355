@@ -14,12 +14,12 @@ namespace MiniBlog.Controllers
     [Route("[controller]")]
     public class ArticleController : ControllerBase
     {
-        private readonly IArticleStore articleStore;
+        private readonly ArticleService articleService;
         private readonly UserService userService;
 
-        public ArticleController(IArticleStore articleStore, UserService userService)
+        public ArticleController(ArticleService articleService, UserService userService)
         {
-            this.articleStore = articleStore;
+            this.articleService = articleService;
             this.userService = userService;
         }
 
@@ -36,7 +36,7 @@ namespace MiniBlog.Controllers
             {
                 this.userService.RegisterUserByName(article.UserName);
 
-                articleStore.Articles.Add(article);
+                articleService.AddArticle(article);
             }
 
             var check = CreatedAtAction(nameof(GetById), new { id = article.Id }, article);
@@ -46,8 +46,7 @@ namespace MiniBlog.Controllers
         [HttpGet("{id}")]
         public Article GetById(Guid id)
         {
-            var foundArticle = ArticleStoreWillReplaceInFuture.Articles.FirstOrDefault(article => article.Id == id);
-            return foundArticle;
+            return articleService.GetArticleById(id);
         }
     }
 }

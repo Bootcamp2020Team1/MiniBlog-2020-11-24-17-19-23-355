@@ -14,21 +14,19 @@ namespace MiniBlog.Controllers
     [Route("[controller]")]
     public class UserController : ControllerBase
     {
-        private readonly IUserStore userStore;
-        private readonly List<User> users;
         private readonly UserService userService;
+        private readonly ArticleService articleService;
 
-        public UserController(IUserStore userStore, UserService userService)
+        public UserController(UserService userService, ArticleService articleService)
         {
-            this.userStore = userStore;
-            users = userStore.Users;
             this.userService = userService;
+            this.articleService = articleService;
         }
 
         [HttpPost]
         public async Task<ActionResult<User>> Register(User user)
         {
-            this.userService.RegisterUserByName(user.Name, user.Email);
+            userService.RegisterUserByName(user.Name, user.Email);
 
             return CreatedAtAction(nameof(GetByName), new { name = user.Name }, user);
         }
@@ -36,38 +34,32 @@ namespace MiniBlog.Controllers
         [HttpGet]
         public List<User> GetAll()
         {
-            return users;
+            return userService.GetAllUsers();
         }
 
         [HttpPut]
         public User Update(User user)
         {
-            var foundUser = users.FirstOrDefault(_ => _.Name == user.Name);
-            if (foundUser != null)
-            {
-                foundUser.Email = user.Email;
-            }
-
-            return foundUser;
+            return userService.UpdateUser(user);
         }
 
         [HttpDelete]
-        public User Delete(string name)
+        public async Task<ActionResult<User>> Delete(string name)
         {
-            var foundUser = UserStoreWillReplaceInFuture.Users.FirstOrDefault(_ => _.Name == name);
+            var foundUser = userService.GetUserByName(name);
             if (foundUser != null)
             {
-                UserStoreWillReplaceInFuture.Users.Remove(foundUser);
-                ArticleStoreWillReplaceInFuture.Articles.RemoveAll(a => a.UserName == foundUser.Name);
+                articleService.DeleteArticleByName(name);
+                userService.DeleteUserByName(name);
             }
 
-            return foundUser;
+            return Ok(foundUser);
         }
 
         [HttpGet("{name}")]
         public User GetByName(string name)
         {
-            return UserStoreWillReplaceInFuture.Users.FirstOrDefault(_ => _.Name.ToLower() == name.ToLower());
+            return userService.GetUserByName(name);
         }
     }
 }

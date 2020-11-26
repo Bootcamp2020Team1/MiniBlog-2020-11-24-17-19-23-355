@@ -1,12 +1,23 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using MiniBlog.Model;
 
 namespace MiniBlog.Stores
 {
+    public interface IArticleStore
+    {
+        List<Article> Articles { get; }
+    }
+
+    public class ArticleStore : IArticleStore
+    {
+        public List<Article> Articles => ArticleStoreWillReplaceInFuture.Articles;
+    }
+
     public class ArticleStoreWillReplaceInFuture
     {
-        public ArticleStoreWillReplaceInFuture()
+        static ArticleStoreWillReplaceInFuture()
         {
             Init();
         }

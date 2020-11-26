@@ -1,9 +1,8 @@
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Internal;
 using MiniBlog.Model;
-using MiniBlog.Stores;
+using MiniBlog.Service;
 
 namespace MiniBlog.Controllers
 {
@@ -11,52 +10,52 @@ namespace MiniBlog.Controllers
     [Route("[controller]")]
     public class UserController : ControllerBase
     {
-        [HttpPost]
-        public User Register(User user)
-        {
-            if (!UserStoreWillReplaceInFuture.Users.Exists(_ => user.Name.ToLower() == _.Name.ToLower()))
-            {
-                UserStoreWillReplaceInFuture.Users.Add(user);
-            }
+        private readonly IUserService userService;
+        private readonly IArticleService articleService;
 
-            return user;
+        public UserController(IUserService userService, IArticleService articleService)
+        {
+            this.userService = userService;
+            this.articleService = articleService;
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<User>> Register(User newUser)
+        {
+            var user = userService.AddUserByName(newUser.Name, newUser.Email);
+
+            return CreatedAtAction(nameof(GetByName), new { name = newUser.Name }, newUser);
         }
 
         [HttpGet]
         public List<User> GetAll()
         {
-            return UserStoreWillReplaceInFuture.Users;
+            return userService.GetAllUsers();
         }
 
         [HttpPut]
         public User Update(User user)
         {
-            var foundUser = UserStoreWillReplaceInFuture.Users.FirstOrDefault(_ => _.Name == user.Name);
-            if (foundUser != null)
-            {
-                foundUser.Email = user.Email;
-            }
-
-            return foundUser;
+            return userService.UpdateUser(user);
         }
 
         [HttpDelete]
-        public User Delete(string name)
+        public async Task<ActionResult<User>> Delete(string name)
         {
-            var foundUser = UserStoreWillReplaceInFuture.Users.FirstOrDefault(_ => _.Name == name);
+            var foundUser = userService.GetUserByName(name);
             if (foundUser != null)
             {
-                UserStoreWillReplaceInFuture.Users.Remove(foundUser);
-                ArticleStoreWillReplaceInFuture.Articles.RemoveAll(a => a.UserName == foundUser.Name);
+                userService.DeleteUserByName(name);
+                articleService.DeleteArticleByName(name);
             }
 
-            return foundUser;
+            return Ok(foundUser);
         }
 
         [HttpGet("{name}")]
         public User GetByName(string name)
         {
-            return UserStoreWillReplaceInFuture.Users.FirstOrDefault(_ => _.Name.ToLower() == name.ToLower());
+            return userService.GetUserByName(name);
         }
     }
 }

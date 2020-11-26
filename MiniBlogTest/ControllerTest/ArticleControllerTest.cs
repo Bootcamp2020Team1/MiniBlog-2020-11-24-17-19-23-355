@@ -3,13 +3,14 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Mime;
 using System.Text;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.TestHost;
 using MiniBlog;
 using MiniBlog.Model;
 using MiniBlog.Stores;
 using Newtonsoft.Json;
 using Xunit;
+using Microsoft.Extensions.DependencyInjection;
+using Moq;
+using System;
 
 namespace MiniBlogTest.ControllerTest
 {
@@ -37,7 +38,17 @@ namespace MiniBlogTest.ControllerTest
         [Fact]
         public async void Should_create_article_fail_when_ArticleStore_unavailable()
         {
-            var client = GetClient();
+            var mockArticleStore = new Mock<IArticleStore>();
+            mockArticleStore.Setup(moq => moq.Articles).Throws(new Exception());
+
+            var client = Factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureServices(services =>
+                {
+                    services.AddScoped<IArticleStore>(service => { return mockArticleStore.Object; });
+                });
+            }).CreateClient();
+
             string userNameWhoWillAdd = "Tom";
             string articleContent = "What a good day today!";
             string articleTitle = "Good day";
@@ -60,6 +71,7 @@ namespace MiniBlogTest.ControllerTest
 
             var httpContent = JsonConvert.SerializeObject(article);
             StringContent content = new StringContent(httpContent, Encoding.UTF8, MediaTypeNames.Application.Json);
+
             var createArticleResponse = await client.PostAsync("/article", content);
 
             // It fail, please help

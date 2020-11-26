@@ -1,45 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using MiniBlog.Model;
-using MiniBlog.Stores;
-
+using MiniBlog.Service;
 namespace MiniBlog.Controllers
 {
     [ApiController]
     [Route("[controller]")]
     public class ArticleController : ControllerBase
     {
+        private readonly IUserService userService;
+        private readonly IArticleService articleService;
+        public ArticleController(IUserService userService, IArticleService articleService)
+        {
+            this.userService = userService;
+            this.articleService = articleService;
+        }
+
         [HttpGet]
         public List<Article> List()
         {
-            return ArticleStoreWillReplaceInFuture.Articles.ToList();
+            return this.articleService.GetAllArticles();
         }
 
         [HttpPost]
-        public Article Create(Article article)
+        public ActionResult<Article> Create(Article newArticle)
         {
-            if (article.UserName != null)
+            if (newArticle.UserName != null)
             {
-                if (!UserStoreWillReplaceInFuture.Users.Exists(_ => article.UserName == _.Name))
-                {
-                    UserStoreWillReplaceInFuture.Users.Add(new User(article.UserName));
-                }
+                userService.AddUserByName(newArticle.UserName);
 
-                ArticleStoreWillReplaceInFuture.Articles.Add(article);
+                articleService.AddArticle(newArticle);
             }
 
-            return article;
+            return CreatedAtAction(nameof(GetById), new { id = newArticle.Id }, newArticle);
         }
 
         [HttpGet("{id}")]
         public Article GetById(Guid id)
-        {
-            var foundArticle = ArticleStoreWillReplaceInFuture.Articles.FirstOrDefault(article => article.Id == id);
-            return foundArticle;
+        {     
+            return articleService.GetArticleById(id);
         }
     }
 }

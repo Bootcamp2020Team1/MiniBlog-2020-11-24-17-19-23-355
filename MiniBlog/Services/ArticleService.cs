@@ -10,10 +10,12 @@ namespace MiniBlog.Services
     public class ArticleService
     {
         private readonly IArticleStore articleStore;
+        private readonly UserService userService;
 
-        public ArticleService(IArticleStore articleStore, IUserStore userStore)
+        public ArticleService(IArticleStore articleStore, UserService userService)
         {
             this.articleStore = articleStore;
+            this.userService = userService;
         }
 
         public void AddArticle(Article article)
